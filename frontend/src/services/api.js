@@ -2,9 +2,6 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
-console.log("API_BASE =", API_BASE);
-console.log("All envs =", import.meta.env);
-
 // uploads a CSV or Excel file to the backend and returns the saved file path
 const uploadFile = async (file, signal) => {
     const formData = new FormData();

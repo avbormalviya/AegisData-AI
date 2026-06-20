@@ -6,8 +6,6 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
-print("FRONTEND_URL from settings:", settings.FRONTEND_URL)
-
 app = FastAPI(title=settings.APP_NAME, version=settings.VERSION)
 
 # Configure CORS
