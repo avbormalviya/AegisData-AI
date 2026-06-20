@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+    
+    <!-- Outer Glow Gradient -->
+    <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#6366f1" stop-opacity="0" />
+    </radialGradient>
+    
+    <!-- Inner Detail Gradient -->
+    <linearGradient id="accentGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a78bfa" />
+      <stop offset="100%" stop-color="#ec4899" />
+    </linearGradient>
+  </defs>
+
+  <!-- Ambient Glow -->
+  <circle cx="50" cy="50" r="45" fill="url(#glowGrad)" />
+
+  <!-- Shield Shape Path -->
+  <path d="M50 15 
+           C65 15, 78 20, 80 32 
+           C80 58, 68 76, 50 85 
+           C32 76, 20 58, 20 32 
+           C22 20, 35 15, 50 15 Z" 
+        fill="url(#shieldGrad)" 
+        stroke="#ffffff" 
+        stroke-width="1.5" 
+        stroke-linejoin="round"
+        filter="drop-shadow(0px 8px 16px rgba(79, 70, 229, 0.45))" />
+
+  <!-- Inner Data Nodes / Grid Structure -->
+  <!-- Central core pulse -->
+  <circle cx="50" cy="48" r="8" fill="url(#accentGrad)" />
+  <circle cx="50" cy="48" r="12" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-dasharray="4 2" />
+
+  <!-- Satellite Nodes -->
+  <circle cx="36" cy="38" r="4" fill="#ffffff" />
+  <circle cx="64" cy="38" r="4" fill="#ffffff" />
+  <circle cx="50" cy="68" r="4" fill="#ffffff" />
+
+  <!-- Connective Lines representing Neural Analysis -->
+  <line x1="50" y1="48" x2="36" y2="38" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" />
+  <line x1="50" y1="48" x2="64" y2="38" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" />
+  <line x1="50" y1="48" x2="50" y2="68" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" />
+  
+  <line x1="36" y1="38" x2="64" y2="38" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1" stroke-dasharray="2 2" />
+  <line x1="36" y1="38" x2="50" y2="68" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1" stroke-dasharray="2 2" />
+  <line x1="64" y1="38" x2="50" y2="68" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1" stroke-dasharray="2 2" />
+</svg>
