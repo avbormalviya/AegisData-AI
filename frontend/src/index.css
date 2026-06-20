@@ -114,13 +114,13 @@ body {
 }
 
 #root {
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
 /* ── App Layout ── */
 .app-container {
-  height: 100vh;
+  height: 100dvh;
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 16px;
@@ -482,7 +482,7 @@ body {
 }
 
 .chat-header-info {
-  padding: 10px 0;
+  /* padding: 6px 0; */
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1157,32 +1157,32 @@ body {
 @media (max-width: 768px) {
   .app-container {
     grid-template-columns: 1fr;
-    padding: 6px;
-    gap: 6px;
+    padding: 8px;
+    gap: 8px;
   }
 
   .mobile-menu-toggle {
     display: flex;
-    padding: 5px;
-    font-size: 1.15rem;
+    padding: 6px;
+    font-size: 1.2rem;
     border-radius: 8px;
   }
 
   /* Slideable offscreen Drawer sidebar - scaled down for compact fit */
   .left-panel {
     position: fixed;
-    top: 6px;
-    left: 6px;
-    bottom: 6px;
-    width: 270px;
-    height: calc(100dvh - 12px);
+    top: 8px;
+    left: 8px;
+    bottom: 8px;
+    width: 280px;
+    height: calc(100dvh - 16px);
     z-index: 1000;
-    transform: translateX(-290px);
+    transform: translateX(-300px);
     box-shadow: var(--shadow-lg);
     background: var(--surface-solid);
-    padding: 16px;
-    gap: 12px;
-    border-radius: 18px;
+    padding: 18px;
+    gap: 14px;
+    border-radius: 20px;
   }
 
   .left-panel.open {
@@ -1190,20 +1190,20 @@ body {
   }
 
   .brand-header {
-    gap: 8px;
+    gap: 10px;
   }
 
   .brand-logo-container {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
   }
 
   .brand-title-wrap h1 {
-    font-size: 0.95rem;
+    font-size: 1.05rem;
   }
 
   .brand-title-wrap p {
-    font-size: 0.65rem;
+    font-size: 0.7rem;
   }
 
   .sidebar-close-btn {
@@ -1212,57 +1212,57 @@ body {
     justify-content: center;
     border: 1px solid var(--border);
     border-radius: 8px;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
   }
 
   .mode-dropdown {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    background-position: right 10px center;
-    background-size: 12px;
+    padding: 9px 12px;
+    font-size: 0.85rem;
+    background-position: right 12px center;
+    background-size: 13px;
   }
 
   .section-title {
-    font-size: 0.68rem;
+    font-size: 0.72rem;
   }
 
   .uploaded-file-item {
-    padding: 8px 10px;
-    font-size: 0.78rem;
+    padding: 9px 12px;
+    font-size: 0.82rem;
     border-radius: 10px;
   }
 
   .active-badge {
-    font-size: 0.62rem;
+    font-size: 0.65rem;
     padding: 1px 6px;
   }
 
   .columns-pane {
-    padding: 8px;
-    max-height: 130px;
+    padding: 10px;
+    max-height: 150px;
     border-radius: 12px;
   }
 
   .columns-pane-title {
-    font-size: 0.65rem;
+    font-size: 0.68rem;
   }
 
   .column-badge {
-    font-size: 0.65rem;
-    padding: 1px 4px;
+    font-size: 0.7rem;
+    padding: 2px 4px;
     border-radius: 4px;
   }
 
   .file-label {
-    padding: 8px 12px;
-    font-size: 0.78rem;
+    padding: 9px 12px;
+    font-size: 0.82rem;
     border-radius: 10px;
   }
 
   .upload-btn {
     padding: 10px;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     border-radius: 10px;
   }
 
@@ -1272,71 +1272,71 @@ body {
 
   /* Chat Header - Compacted */
   .chat-header {
-    padding: 8px 14px;
+    padding: 8px 16px;
   }
 
   .chat-header h1 {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .header-action-btn {
-    padding: 6px 10px;
-    font-size: 0.72rem;
+    padding: 6px 12px;
+    font-size: 0.78rem;
     border-radius: 8px;
     gap: 4px;
   }
 
   .chat-window {
-    padding: 12px;
-    gap: 10px;
+    padding: 16px 14px;
+    gap: 12px;
   }
 
   /* Empty State - Beautiful & Compact on Mobile */
   .chat-empty-state {
-    padding: 12px 6px;
-    gap: 12px;
+    padding: 16px 12px;
+    gap: 16px;
     max-width: 100%;
   }
 
   .empty-logo-wrapper {
-    width: 60px;
-    height: 60px;
-    border-radius: 16px;
-    padding: 10px;
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    padding: 12px;
     box-shadow: var(--shadow-sm);
   }
 
   .empty-title {
-    font-size: 1.25rem;
+    font-size: 1.45rem;
   }
 
   .empty-subtitle {
-    font-size: 0.82rem;
-    line-height: 1.4;
+    font-size: 0.88rem;
+    line-height: 1.45;
     margin-top: -6px;
   }
 
   .features-grid,
   .suggestion-grid {
     grid-template-columns: 1fr;
-    gap: 6px;
+    gap: 8px;
   }
 
   .feature-badge {
-    padding: 8px 10px;
-    font-size: 0.75rem;
+    padding: 10px 12px;
+    font-size: 0.8rem;
     border-radius: 10px;
     gap: 8px;
   }
 
   .suggestions-title {
-    font-size: 0.72rem;
+    font-size: 0.76rem;
     margin-top: 6px;
   }
 
   .suggestion-card {
-    padding: 8px 10px;
-    font-size: 0.75rem;
+    padding: 10px 12px;
+    font-size: 0.8rem;
     border-radius: 10px;
   }
 
@@ -1346,31 +1346,31 @@ body {
   }
 
   .bubble.user {
-    padding: 8px 12px;
-    font-size: 0.85rem;
+    padding: 10px 14px;
+    font-size: 0.88rem;
     border-radius: 16px 16px 4px 16px;
   }
 
   .bubble.assistant {
-    padding: 12px;
+    padding: 14px;
     border-radius: 16px 16px 16px 4px;
   }
 
   .message-meta {
-    font-size: 0.7rem;
-    margin-bottom: 4px;
-    gap: 6px;
+    font-size: 0.75rem;
+    margin-bottom: 6px;
+    gap: 8px;
   }
 
   .meta-avatar {
-    width: 18px;
-    height: 18px;
-    font-size: 0.55rem;
+    width: 20px;
+    height: 20px;
+    font-size: 0.6rem;
   }
 
   .bubble-content {
-    font-size: 0.85rem;
-    line-height: 1.5;
+    font-size: 0.88rem;
+    line-height: 1.55;
   }
 
   .bubble-content p {
@@ -1379,7 +1379,7 @@ body {
 
   .bubble-content ul,
   .bubble-content ol {
-    padding-left: 16px;
+    padding-left: 18px;
     margin-bottom: 8px;
   }
 
@@ -1388,7 +1388,7 @@ body {
   }
 
   .bubble-content code {
-    font-size: 0.76rem;
+    font-size: 0.8rem;
     padding: 1px 4px;
   }
 
@@ -1404,94 +1404,94 @@ body {
   }
 
   .code-header {
-    padding: 6px 12px;
-    font-size: 0.7rem;
+    padding: 8px 14px;
+    font-size: 0.75rem;
   }
 
   .code-copy-btn {
-    padding: 3px 8px;
-    font-size: 0.66rem;
+    padding: 4px 8px;
+    font-size: 0.7rem;
     border-radius: 5px;
     gap: 4px;
   }
 
   .code-renderer pre {
-    font-size: 0.76rem !important;
-    padding: 10px !important;
+    font-size: 0.8rem !important;
+    padding: 12px !important;
   }
 
   .result-section {
-    padding: 10px;
+    padding: 12px;
     margin-top: 8px;
     border-radius: 10px;
   }
 
   .result-section-header {
-    font-size: 0.72rem;
+    font-size: 0.76rem;
     margin-bottom: 6px;
     gap: 6px;
   }
 
   .result-table-wrapper {
-    max-height: 180px;
+    max-height: 200px;
     border-radius: 8px;
   }
 
   .result-table th, 
   .result-table td {
-    padding: 6px 8px;
-    font-size: 0.74rem;
+    padding: 8px 10px;
+    font-size: 0.78rem;
   }
 
   .result-text-block {
-    padding: 8px;
-    font-size: 0.76rem;
+    padding: 10px;
+    font-size: 0.8rem;
     border-radius: 8px;
-    max-height: 160px;
+    max-height: 180px;
   }
 
   .chart-container {
-    padding: 8px;
+    padding: 10px;
     margin-top: 8px;
     border-radius: 10px;
   }
 
   .thinking-container {
-    padding: 8px 12px;
+    padding: 10px 14px;
     border-radius: 12px;
-    gap: 8px;
+    gap: 10px;
   }
 
   .thinking-dot {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
   }
 
   .thinking-label {
-    font-size: 0.76rem;
-    min-width: 140px;
+    font-size: 0.8rem;
+    min-width: 160px;
   }
 
   /* Input area - Compacted */
   .input-area {
-    padding: 8px;
-    gap: 6px;
+    padding: 10px 16px;
+    gap: 8px;
   }
 
   .input-area input {
-    padding: 8px 12px;
-    font-size: 16px; /* Retain 16px to prevent iOS auto-zoom */
+    padding: 10px 14px;
+    font-size: 0.92rem;
     border-radius: 10px;
   }
 
   .action-btn {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
   }
 
   .action-btn svg {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
   }
 }
