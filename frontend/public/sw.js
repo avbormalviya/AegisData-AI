@@ -39,6 +39,11 @@ self.addEventListener("activate", (event) => {
 
 // Intercept requests and serve from cache or network
 self.addEventListener("fetch", (event) => {
+  // Only handle HTTP/HTTPS requests (ignores chrome extensions, web sockets)
+  if (!event.request.url.startsWith("http")) {
+    return;
+  }
+
   const requestUrl = new URL(event.request.url);
 
   // Skip caching API requests or non-GET requests
@@ -58,26 +63,34 @@ self.addEventListener("fetch", (event) => {
 
       return fetch(event.request)
         .then((networkResponse) => {
+          // Cache basic and cors response types with status 200
           if (
             !networkResponse ||
             networkResponse.status !== 200 ||
-            networkResponse.type !== "basic"
+            (networkResponse.type !== "basic" && networkResponse.type !== "cors")
           ) {
             return networkResponse;
           }
 
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
+            cache.put(event.request, responseToCache).catch((err) => {
+              console.warn("SW failed to cache asset:", err);
+            });
+          }).catch((err) => {
+            console.warn("SW failed to open cache:", err);
           });
 
           return networkResponse;
         })
-        .catch(() => {
+        .catch((err) => {
+          console.error("SW network fetch failed for:", event.request.url, err);
           // Fallback to offline index.html if navigating page
           if (event.request.mode === "navigate") {
             return caches.match("/");
           }
+          // For static resources, rethrow so browser fails natively rather than SW intercept erroring
+          throw err;
         });
     })
   );
