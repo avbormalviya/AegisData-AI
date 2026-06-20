@@ -2,6 +2,10 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
+if (!API_BASE) {
+    throw new Error("VITE_API_BASE is not defined");
+}
+
 // uploads a CSV or Excel file to the backend and returns the saved file path
 const uploadFile = async (file, signal) => {
     const formData = new FormData();
