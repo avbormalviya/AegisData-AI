@@ -1157,31 +1157,53 @@ body {
 @media (max-width: 768px) {
   .app-container {
     grid-template-columns: 1fr;
-    padding: 8px;
-    gap: 8px;
+    padding: 6px;
+    gap: 6px;
   }
 
   .mobile-menu-toggle {
     display: flex;
+    padding: 5px;
+    font-size: 1.15rem;
+    border-radius: 8px;
   }
 
-  /* Slideable offscreen Drawer sidebar */
+  /* Slideable offscreen Drawer sidebar - scaled down for compact fit */
   .left-panel {
     position: fixed;
-    top: 8px;
-    left: 8px;
-    bottom: 8px;
-    width: 290px;
-    height: calc(100dvh - 16px);
+    top: 6px;
+    left: 6px;
+    bottom: 6px;
+    width: 270px;
+    height: calc(100dvh - 12px);
     z-index: 1000;
-    transform: translateX(-310px);
+    transform: translateX(-290px);
     box-shadow: var(--shadow-lg);
     background: var(--surface-solid);
-    /* Solid background on mobile for clear text */
+    padding: 16px;
+    gap: 12px;
+    border-radius: 18px;
   }
 
   .left-panel.open {
     transform: translateX(0);
+  }
+
+  .brand-header {
+    gap: 8px;
+  }
+
+  .brand-logo-container {
+    width: 32px;
+    height: 32px;
+  }
+
+  .brand-title-wrap h1 {
+    font-size: 0.95rem;
+  }
+
+  .brand-title-wrap p {
+    font-size: 0.65rem;
   }
 
   .sidebar-close-btn {
@@ -1189,40 +1211,287 @@ body {
     align-items: center;
     justify-content: center;
     border: 1px solid var(--border);
-    border-radius: 10px;
-    width: 38px;
-    height: 38px;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
   }
 
-  .brand-header {
-    justify-content: space-between;
+  .mode-dropdown {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    background-position: right 10px center;
+    background-size: 12px;
+  }
+
+  .section-title {
+    font-size: 0.68rem;
+  }
+
+  .uploaded-file-item {
+    padding: 8px 10px;
+    font-size: 0.78rem;
+    border-radius: 10px;
+  }
+
+  .active-badge {
+    font-size: 0.62rem;
+    padding: 1px 6px;
+  }
+
+  .columns-pane {
+    padding: 8px;
+    max-height: 130px;
+    border-radius: 12px;
+  }
+
+  .columns-pane-title {
+    font-size: 0.65rem;
+  }
+
+  .column-badge {
+    font-size: 0.65rem;
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+
+  .file-label {
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    border-radius: 10px;
+  }
+
+  .upload-btn {
+    padding: 10px;
+    font-size: 0.8rem;
+    border-radius: 10px;
   }
 
   .sidebar-overlay.visible {
     display: block;
   }
 
-  .bubble {
-    max-width: 95%;
+  /* Chat Header - Compacted */
+  .chat-header {
+    padding: 8px 14px;
   }
 
-  .chat-empty-state {
+  .chat-header h1 {
+    font-size: 0.9rem;
+  }
+
+  .header-action-btn {
+    padding: 6px 10px;
+    font-size: 0.72rem;
+    border-radius: 8px;
+    gap: 4px;
+  }
+
+  .chat-window {
     padding: 12px;
-    gap: 14px;
+    gap: 10px;
+  }
+
+  /* Empty State - Beautiful & Compact on Mobile */
+  .chat-empty-state {
+    padding: 12px 6px;
+    gap: 12px;
+    max-width: 100%;
+  }
+
+  .empty-logo-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    padding: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .empty-title {
+    font-size: 1.25rem;
+  }
+
+  .empty-subtitle {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    margin-top: -6px;
   }
 
   .features-grid,
   .suggestion-grid {
     grid-template-columns: 1fr;
+    gap: 6px;
   }
 
-  .input-area {
+  .feature-badge {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+    border-radius: 10px;
+    gap: 8px;
+  }
+
+  .suggestions-title {
+    font-size: 0.72rem;
+    margin-top: 6px;
+  }
+
+  .suggestion-card {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+    border-radius: 10px;
+  }
+
+  /* Messages - Compacted */
+  .bubble {
+    max-width: 98%;
+  }
+
+  .bubble.user {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    border-radius: 16px 16px 4px 16px;
+  }
+
+  .bubble.assistant {
     padding: 12px;
+    border-radius: 16px 16px 16px 4px;
+  }
+
+  .message-meta {
+    font-size: 0.7rem;
+    margin-bottom: 4px;
+    gap: 6px;
+  }
+
+  .meta-avatar {
+    width: 18px;
+    height: 18px;
+    font-size: 0.55rem;
+  }
+
+  .bubble-content {
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .bubble-content p {
+    margin-bottom: 8px;
+  }
+
+  .bubble-content ul,
+  .bubble-content ol {
+    padding-left: 16px;
+    margin-bottom: 8px;
+  }
+
+  .bubble-content li {
+    margin-bottom: 4px;
+  }
+
+  .bubble-content code {
+    font-size: 0.76rem;
+    padding: 1px 4px;
+  }
+
+  .bubble-content pre {
+    margin: 8px 0;
+    border-radius: 10px;
+  }
+
+  /* Code Renderers & results */
+  .code-renderer-container {
+    border-radius: 10px;
+    margin-top: 8px;
+  }
+
+  .code-header {
+    padding: 6px 12px;
+    font-size: 0.7rem;
+  }
+
+  .code-copy-btn {
+    padding: 3px 8px;
+    font-size: 0.66rem;
+    border-radius: 5px;
+    gap: 4px;
+  }
+
+  .code-renderer pre {
+    font-size: 0.76rem !important;
+    padding: 10px !important;
+  }
+
+  .result-section {
+    padding: 10px;
+    margin-top: 8px;
+    border-radius: 10px;
+  }
+
+  .result-section-header {
+    font-size: 0.72rem;
+    margin-bottom: 6px;
+    gap: 6px;
+  }
+
+  .result-table-wrapper {
+    max-height: 180px;
+    border-radius: 8px;
+  }
+
+  .result-table th, 
+  .result-table td {
+    padding: 6px 8px;
+    font-size: 0.74rem;
+  }
+
+  .result-text-block {
+    padding: 8px;
+    font-size: 0.76rem;
+    border-radius: 8px;
+    max-height: 160px;
+  }
+
+  .chart-container {
+    padding: 8px;
+    margin-top: 8px;
+    border-radius: 10px;
+  }
+
+  .thinking-container {
+    padding: 8px 12px;
+    border-radius: 12px;
+    gap: 8px;
+  }
+
+  .thinking-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .thinking-label {
+    font-size: 0.76rem;
+    min-width: 140px;
+  }
+
+  /* Input area - Compacted */
+  .input-area {
+    padding: 8px;
+    gap: 6px;
   }
 
   .input-area input {
-    padding: 10px 14px;
-    font-size: 16px;
-    /* Prevents zoom on focus for mobile browsers */
+    padding: 8px 12px;
+    font-size: 16px; /* Retain 16px to prevent iOS auto-zoom */
+    border-radius: 10px;
+  }
+
+  .action-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+  }
+
+  .action-btn svg {
+    width: 14px;
+    height: 14px;
   }
 }
