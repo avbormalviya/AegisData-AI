@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     MAX_ROWS: int = 1000
 
     # CORS (for React frontend)
-    FRONTEND_URL: list = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    FRONTEND_URL: str = "http://127.0.0.1:5173"
 
     class Config:
         env_file = ".env"

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 // uploads a CSV or Excel file to the backend and returns the saved file path
 const uploadFile = async (file, signal) => {
