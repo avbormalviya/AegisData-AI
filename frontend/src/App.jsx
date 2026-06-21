@@ -24,8 +24,8 @@ const App = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [activeFilePath, setActiveFilePath] = useState(null);
   const [input, setInput] = useState("");
-  const [mode, setMode] = useState("csv"); // "csv", "sql", "code", "general"
-  const [theme, setTheme] = useState("light");
+  const [mode, setMode] = useState(() => localStorage.getItem("aegis-mode") || "csv");
+  const [theme, setTheme] = useState(() => localStorage.getItem("aegis-theme") || "light");
   
   // Mobile drawer states
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -41,7 +41,12 @@ const App = () => {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("aegis-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem("aegis-mode", mode);
+  }, [mode]);
 
   // Client-side quick CSV column extraction
   const extractCsvSchema = async (path, rawFile) => {
