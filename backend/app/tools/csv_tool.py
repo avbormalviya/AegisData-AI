@@ -2,7 +2,8 @@ from typing import Optional
 import pandas as pd
 from pandas.errors import EmptyDataError, ParserError
 from langchain_core.tools import tool
-from app.services.llm import llm, safe_str
+from app.services.llm import llm
+from app.utils.str_conversion import safe_str
 from app.core.config import get_settings
 
 
