@@ -38,5 +38,7 @@ def build_prompt(query: str, data: str) -> str:
         Data: {data}
         
         Provide a clear summary with key insights, trends, notable numbers, plain English and concise.
+
+        If data is empty or error, return that error message as response to the query in plain English and give a suggestion or next steps.
         """
     )

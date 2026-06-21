@@ -60,13 +60,14 @@ def classify_node(state: AgentState) -> dict:
 
 
 def should_create_chart(query: str, result: str) -> bool:
+    truncated_result = result[:2000]
     response = llm.invoke(
         f"""
         Decide whether a chart is needed to answer the query.
 
         Question: {query}
         Data:
-        {result}
+        {truncated_result}
 
         **CRITICAL RULES:**
 
@@ -76,7 +77,6 @@ def should_create_chart(query: str, result: str) -> bool:
         Return ONLY true or false. No explanation. No other text.
         """
     )
-    print(response.content)
     return response.content.lower().strip() == "true"
 
 
@@ -84,63 +84,75 @@ def execute_node(state: AgentState) -> dict:
     """
     Execute the appropriate tool based on the data source.
     """
-    query = state["messages"][-1].content
-    data_source = state["data_source"]
-    file_path = state.get("file_path")
+    try:
+        query = state["messages"][-1].content
+        data_source = state["data_source"]
+        file_path = state.get("file_path")
 
-    if data_source == "sql":
-        result = sql_query_tool.invoke({"query": query})
-    elif data_source in ("csv", "chart", "code"):
-        if not file_path:
-            return {"result": "No file path provided"}
-        result = csv_query_tool.invoke({"query": query, "file_path": file_path})
-    else:
-        result = "General question, no data query needed."
+        if data_source == "sql":
+            result = sql_query_tool.invoke({"query": query})
+        elif data_source in ("csv", "chart", "code"):
+            if not file_path:
+                return {"result": "No file path provided"}
+            result = csv_query_tool.invoke({"query": query, "file_path": file_path})
+        else:
+            result = "General question, no data query needed."
 
-    return {"result": result, "chart_needed": should_create_chart(query, result)}
+        return {"result": result, "error": None}
+    except Exception as e:
+        return {"result": None, "error": f"Something went wrong while processing your request: {str(e)}"}
 
 
 def general_node(state: AgentState) -> dict:
-    query = state["messages"][-1].content
-    response = llm.invoke(f"You are a helpful data analyst assistant. Respond naturally to this message: {query}")
-    return {"summary": response.content.strip()}
+    try:
+        query = state["messages"][-1].content
+        response = llm.invoke(f"You are a helpful data analyst assistant. Respond naturally to this message: {query}")
+        return {"summary": response.content.strip(), "error": None}
+    except Exception as e:
+        return {"summary": None, "error": f"Something went wrong while processing your request: {str(e)}"}
 
 
 def code_node(state: AgentState) -> dict:
     """
     Generate code based on the query result.
     """
-    query = state["messages"][-1].content
-    file_path = state["file_path"]
+    try:
+        query = state["messages"][-1].content
+        file_path = state["file_path"]
 
-    result = code_tool.invoke({"query": query, "file_path": file_path})
+        result = code_tool.invoke({"query": query, "file_path": file_path})
 
-    return {"code": result.get("code"), "result": result.get("result") }
+        return {"code": result.get("code"), "result": result.get("result"), "error": None}
+    except Exception as e:
+        return {"code": None, "result": None, "error": f"Something went wrong while processing your request: {str(e)}"}
 
 
 def chart_node(state: AgentState) -> dict:
     """
     Generate a chart based on the query result.
     """
-    query = state["messages"][-1].content
-    data = state["result"]
+    try:
+        query = state["messages"][-1].content
+        data = state["result"]
 
-    chart_result = chart_tool.invoke({"query": query, "data": data})
+        chart_result = chart_tool.invoke({"query": query, "data": data})
 
-    # print("\n=== RAW RESPONSE ===")
-    # print(data)
-    # print("====================\n")
-
-    return {"chart_spec": chart_result}
+        return {"chart_spec": chart_result, "error": None}
+    except Exception as e:
+        return {"chart_spec": {}, "error": f"Something went wrong while processing your request: {str(e)}"}
 
 
 def summary_node(state: AgentState) -> dict:
     """
     Generate a summary of the query result.
     """
+    if state.get("error"):
+        summary_result = summary_tool.invoke({"query": state["messages"][-1].content, "data": state["error"]})
+        return {"summary": summary_result, "error": None}
+
     query = state["messages"][-1].content
     data = state["result"]
 
     summary_result = summary_tool.invoke({"query": query, "data": data})
 
-    return {"summary": summary_result}
+    return {"summary": summary_result, "error": None}

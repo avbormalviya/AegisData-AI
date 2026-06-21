@@ -2,7 +2,7 @@ from typing import Optional
 import pandas as pd
 from pandas.errors import EmptyDataError, ParserError
 from langchain_core.tools import tool
-from app.services.llm import llm
+from app.services.llm import llm, safe_str
 from app.core.config import get_settings
 
 
@@ -80,7 +80,7 @@ def csv_query_tool(query: str, file_path: Optional[str] = None) -> str:
 
     result = namespace.get("result", "No result variable found")
 
-    return str(result)
+    return safe_str(result)
 
 
 def build_prompt(query: str, df_info: str) -> str:
