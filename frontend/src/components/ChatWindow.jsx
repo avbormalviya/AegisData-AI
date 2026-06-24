@@ -41,20 +41,20 @@ export const ChatWindow = ({ messages, isLoading, onSelectSuggestion }) => {
             <svg viewBox="0 0 100 100" width="100%" height="100%">
               <defs>
                 <linearGradient id="shieldG" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#818cf8" />
-                  <stop offset="100%" stop-color="#4f46e5" />
+                  <stop offset="0%" stopColor="#818cf8" />
+                  <stop offset="100%" stopColor="#4f46e5" />
                 </linearGradient>
               </defs>
               <path 
                 d="M50 15 C65 15, 78 20, 80 32 C80 58, 68 76, 50 85 C32 76, 20 58, 20 32 C22 20, 35 15, 50 15 Z" 
                 fill="url(#shieldG)" 
                 stroke="#ffffff" 
-                stroke-width="2" 
+                strokeWidth="2" 
               />
               <circle cx="50" cy="48" r="8" fill="#ffffff" />
-              <line x1="50" y1="48" x2="36" y2="38" stroke="#ffffff" stroke-width="2" />
-              <line x1="50" y1="48" x2="64" y2="38" stroke="#ffffff" stroke-width="2" />
-              <line x1="50" y1="48" x2="50" y2="68" stroke="#ffffff" stroke-width="2" />
+              <line x1="50" y1="48" x2="36" y2="38" stroke="#ffffff" strokeWidth="2" />
+              <line x1="50" y1="48" x2="64" y2="38" stroke="#ffffff" strokeWidth="2" />
+              <line x1="50" y1="48" x2="50" y2="68" stroke="#ffffff" strokeWidth="2" />
             </svg>
           </div>
           <h2 className="empty-title">AegisData AI</h2>

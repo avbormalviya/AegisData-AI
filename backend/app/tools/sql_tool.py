@@ -6,14 +6,13 @@ from app.services.llm import llm
 
 @tool
 def sql_query_tool(query: str) -> str:
-    """
-    Use this tool to answer questions from a SQL database using natural language.
+    """Use this tool to answer questions that require querying a SQL database.
+    Use this ONLY when the user has NOT uploaded a file and their question
+    requires retrieving or aggregating data from a database (e.g. sales records,
+    user data, inventory). Do not use this for CSV/Excel file questions.
 
     Args:
-        query: The natural language query to answer
-
-    Returns:
-        The result of the query as a string
+        query: The user's natural language question about the database.
     """
     schema_string = get_schema_string()
     prompt = build_prompt(query, schema_string)
@@ -39,29 +38,29 @@ def build_prompt(query: str, schema: str) -> str:
     """
     return (
         f"""
-You are a SQL expert.
+        You are a SQL expert.
 
-Database Schema:
-{schema}
+        Database Schema:
+        {schema}
 
-User Question:
-{query}
+        User Question:
+        {query}
 
-RULES:
+        RULES:
 
-- Generate ONLY a SELECT query.
-- Never generate INSERT.
-- Never generate UPDATE.
-- Never generate DELETE.
-- Never generate DROP.
-- Never generate ALTER.
-- Never generate TRUNCATE.
-- Never modify data.
-- Read-only access only.
+        - Generate ONLY a SELECT query.
+        - Never generate INSERT.
+        - Never generate UPDATE.
+        - Never generate DELETE.
+        - Never generate DROP.
+        - Never generate ALTER.
+        - Never generate TRUNCATE.
+        - Never modify data.
+        - Read-only access only.
 
-Return only SQL.
-"""
-)
+        Return only SQL.
+        """
+    )
 
 
 def extract_sql(response: str) -> str:

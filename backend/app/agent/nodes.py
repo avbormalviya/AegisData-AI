@@ -1,158 +1,60 @@
-from app.agent.state import AgentState
+from langgraph.prebuilt import ToolNode
+from langchain_core.messages import SystemMessage, AIMessage
 from app.services.llm import llm
 from app.tools.sql_tool import sql_query_tool
 from app.tools.csv_tool import csv_query_tool
 from app.tools.code_tool import code_tool
 from app.tools.chart_tool import chart_tool
-from app.tools.summary_tool import summary_tool
 
 
-def classify_node(state: AgentState) -> dict:
+SYSTEM_PROMPT = """You are a helpful data analyst assistant. You can:
+- Query SQL databases (when no file is uploaded)
+- Analyze uploaded CSV/Excel files
+- Write and execute code for data analysis, or write code in other languages
+- Create charts or plot to visualize data
+
+For casual conversation or general questions unrelated to data, just respond
+naturally without using any tools.
+
+When a user asks for analysis or a chart, retrieve the data first using the
+appropriate tool, then use that data for any chart or further analysis.
+
+FORMATTING RULES:
+- Respond in clean markdown.
+- Always wrap code in triple backticks with the language specified.
+- Use bullet points or **bold** for key insights.
+- Keep responses concise.
+- Write naturally — explain before and after code blocks like you're
+  walking a colleague through your thinking, not just dumping output.
+- If you called chart_tool and want to show that chart in your response,
+  insert the exact text [CHART_HERE] at the point where the chart should
+  appear, with explanation before and after it.
+
+- If a tool (like code_tool) returns code, include that exact code in your
+  final response wrapped in a markdown code block with the correct language
+  tag. Do not just describe the code in words — show it."""
+
+
+tools = [sql_query_tool, csv_query_tool, code_tool, chart_tool]
+
+llm_with_tools = llm.bind_tools(tools)
+tool_node = ToolNode(tools)
+
+
+def agent_node(state):
     """
-    Classify the user's query into one of the following categories:
-    - sql: If the query is related to SQL database
-    - csv: If the query is related to CSV file
-    - chart: If the query is related to chart
-    - unknown: If the query is not related to any of the above categories
+    Main agent node that uses LLM with tools
     """
-    if state.get("data_source") and state["data_source"] != "":
-        return {"data_source": state["data_source"]}
-        
-    query = state["messages"][-1].content
+    messages = state['messages']
 
-    response = llm.invoke(
-        f"""
-        Classify the user's request into exactly one category:
+    if not any(isinstance(m, SystemMessage) for m in messages):
+        messages = [SystemMessage(content=SYSTEM_PROMPT)] + messages
 
-        code:
-        - user asks for code
-        - user says "write code"
-        - user says "python code"
-        - user says "show query"
-        - user says "how to do this"
-
-        analysis:
-        - user wants insights
-        - user wants explanation
-        - user wants summary
-
-        chart:
-        - user wants graph/chart/plot
-
-        Question:
-        {query}
-
-        Reply with only:
-        code, analysis, or chart
-        """
-    )
-
-    content = response.content.lower().strip()
-
-    if "sql" in content:
-        return {"data_source": "sql"}
-    elif "csv" in content:
-        return {"data_source": "csv"}
-    elif "code" in content:
-        return {"data_source": "code"}
-    else:
-        return {"data_source": "general"}
-
-
-def should_create_chart(query: str, result: str) -> bool:
-    truncated_result = result[:2000]
-    response = llm.invoke(
-        f"""
-        Decide whether a chart is needed to answer the query.
-
-        Question: {query}
-        Data:
-        {truncated_result}
-
-        **CRITICAL RULES:**
-
-        1. Only return true or false 
-        2. No explanation. No other text.
-
-        Return ONLY true or false. No explanation. No other text.
-        """
-    )
-    return response.content.lower().strip() == "true"
-
-
-def execute_node(state: AgentState) -> dict:
-    """
-    Execute the appropriate tool based on the data source.
-    """
     try:
-        query = state["messages"][-1].content
-        data_source = state["data_source"]
-        file_path = state.get("file_path")
-
-        if data_source == "sql":
-            result = sql_query_tool.invoke({"query": query})
-        elif data_source in ("csv", "chart", "code"):
-            if not file_path:
-                return {"result": "No file path provided"}
-            result = csv_query_tool.invoke({"query": query, "file_path": file_path})
-        else:
-            result = "General question, no data query needed."
-
-        return {"result": result, "error": None}
+      response = llm_with_tools.invoke(messages)
     except Exception as e:
-        return {"result": None, "error": f"Something went wrong while processing your request: {str(e)}"}
+      import traceback
+      traceback.print_exc()
+      return {"messages": [AIMessage(content="An error occurred. Please try again.")]}
 
-
-def general_node(state: AgentState) -> dict:
-    try:
-        query = state["messages"][-1].content
-        response = llm.invoke(f"You are a helpful data analyst assistant. Respond naturally to this message: {query}")
-        return {"summary": response.content.strip(), "error": None}
-    except Exception as e:
-        return {"summary": None, "error": f"Something went wrong while processing your request: {str(e)}"}
-
-
-def code_node(state: AgentState) -> dict:
-    """
-    Generate code based on the query result.
-    """
-    try:
-        query = state["messages"][-1].content
-        file_path = state["file_path"]
-
-        result = code_tool.invoke({"query": query, "file_path": file_path})
-
-        return {"code": result.get("code"), "result": result.get("result"), "error": None}
-    except Exception as e:
-        return {"code": None, "result": None, "error": f"Something went wrong while processing your request: {str(e)}"}
-
-
-def chart_node(state: AgentState) -> dict:
-    """
-    Generate a chart based on the query result.
-    """
-    try:
-        query = state["messages"][-1].content
-        data = state["result"]
-
-        chart_result = chart_tool.invoke({"query": query, "data": data})
-
-        return {"chart_spec": chart_result, "error": None}
-    except Exception as e:
-        return {"chart_spec": {}, "error": f"Something went wrong while processing your request: {str(e)}"}
-
-
-def summary_node(state: AgentState) -> dict:
-    """
-    Generate a summary of the query result.
-    """
-    if state.get("error"):
-        summary_result = summary_tool.invoke({"query": state["messages"][-1].content, "data": state["error"]})
-        return {"summary": summary_result, "error": None}
-
-    query = state["messages"][-1].content
-    data = state["result"]
-
-    summary_result = summary_tool.invoke({"query": query, "data": data})
-
-    return {"summary": summary_result, "error": None}
+    return {"messages": [response]}

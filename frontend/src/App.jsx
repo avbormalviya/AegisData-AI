@@ -24,7 +24,6 @@ const App = () => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [activeFilePath, setActiveFilePath] = useState(null);
   const [input, setInput] = useState("");
-  const [mode, setMode] = useState(() => localStorage.getItem("aegis-mode") || "csv");
   const [theme, setTheme] = useState(() => localStorage.getItem("aegis-theme") || "light");
   
   // Mobile drawer states
@@ -43,10 +42,6 @@ const App = () => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("aegis-theme", theme);
   }, [theme]);
-
-  useEffect(() => {
-    localStorage.setItem("aegis-mode", mode);
-  }, [mode]);
 
   // Client-side quick CSV column extraction
   const extractCsvSchema = async (path, rawFile) => {
@@ -113,160 +108,117 @@ const App = () => {
     setIsTyping(false);
   };
 
-  const handleSend = async (customQuery, customMode) => {
-    const userQuery = typeof customQuery === "string" ? customQuery : input;
-    if (!userQuery.trim()) return;
+  const handleSend = async (customQuery) => {
+  const userQuery = typeof customQuery === "string" ? customQuery : input;
+  if (!userQuery.trim()) return;
 
-    // Cancel any current generation before starting new one
-    handleStop();
+  handleStop();
+  isStoppedRef.current = false;
 
-    // Reset stopped state flag
-    isStoppedRef.current = false;
+  setMessages(prev => [...prev, { role: "user", content: userQuery }]);
+  setInput("");
+  setIsLoading(true);
+
+  abortControllerRef.current = new AbortController();
+
+  try {
+    // build history from current messages BEFORE adding the new user message
+    const history = messages
+    .filter(m => !m.content?.startsWith("Error:") && !m.content?.startsWith("*[Session"))
+    .map(m => ({ role: m.role, content: m.content }));
+
+    const data = await sendMessage(
+      userQuery,
+      activeFilePath,
+      history,
+      abortControllerRef.current.signal
+    );
+
+    setIsLoading(false);
+    setIsTyping(true);
+
+    const rawMessages = data.messages || [];
+
+    // extract the final AI text response
+    let finalText = "";
+    for (let i = rawMessages.length - 1; i >= 0; i--) {
+      if (rawMessages[i].type === "AIMessage" && rawMessages[i].content) {
+        finalText = rawMessages[i].content;
+        break;
+      }
+    }
+
+    // extract chart_tool result if present
+    let chartSpec = null;
+    for (const m of rawMessages) {
+      if (m.type === "ToolMessage" && m.name === "chart_tool") {
+        chartSpec = m.content;
+        break;
+      }
+    }
+
+    const fullText = finalText;
 
     setMessages(prev => [
       ...prev,
-      {
-        role: "user",
-        content: userQuery,
-      },
+      { role: "assistant", content: "", chartSpec: null, trace: [] },
     ]);
 
-    setInput("");
-    setIsLoading(true);
+    const updateLastMessage = (changes) => {
+      setMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = {
+          ...updated[updated.length - 1],
+          ...changes,
+        };
+        return updated;
+      });
+    };
 
-    // Setup network AbortController
-    abortControllerRef.current = new AbortController();
+    await new Promise(resolve => {
+      if (!fullText) return resolve();
+      let i = 0;
+      summaryIntervalRef.current = setInterval(() => {
+        if (isStoppedRef.current) {
+          clearInterval(summaryIntervalRef.current);
+          summaryIntervalRef.current = null;
+          return resolve();
+        }
+        i++;
+        updateLastMessage({ content: fullText.slice(0, i) });
+        if (i >= fullText.length) {
+          clearInterval(summaryIntervalRef.current);
+          summaryIntervalRef.current = null;
+          resolve();
+        }
+      }, 10);
+    });
 
-    const activeMode = customMode || mode;
+    if (!isStoppedRef.current) {
+      updateLastMessage({
+        chartSpec,
+        trace: data.trace,
+      });
+    }
 
-    try {
-      const data = await sendMessage(
-        userQuery,
-        activeFilePath,
-        activeMode,
-        abortControllerRef.current.signal
-      );
-
-      // Reset loading once data arrives
-      setIsLoading(false);
-      setIsTyping(true);
-
-      const fullText = data.summary || "";
-      const fullCode = data.code || "";
-
-      // Add empty assistant response bubble
+  } catch (error) {
+    if (axios.isCancel(error)) {
       setMessages(prev => [
         ...prev,
-        {
-          role: "assistant",
-          content: "",
-          code: "",
-          chartSpec: null,
-          result: "",
-        },
+        { role: "assistant", content: "*[Session query stopped]*" }
       ]);
-
-      const updateLastMessage = (changes) => {
-        setMessages(prev => {
-          const updated = [...prev];
-          updated[updated.length - 1] = {
-            ...updated[updated.length - 1],
-            ...changes,
-          };
-          return updated;
-        });
-      };
-
-      // ===== TYPE SUMMARY =====
-      const typeSummary = () =>
-        new Promise(resolve => {
-          if (!fullText) return resolve();
-          let i = 0;
-          summaryIntervalRef.current = setInterval(() => {
-            if (isStoppedRef.current) {
-              clearInterval(summaryIntervalRef.current);
-              summaryIntervalRef.current = null;
-              resolve();
-              return;
-            }
-
-            i++;
-            updateLastMessage({
-              content: fullText.slice(0, i),
-            });
-
-            if (i >= fullText.length) {
-              clearInterval(summaryIntervalRef.current);
-              summaryIntervalRef.current = null;
-              resolve();
-            }
-          }, 10);
-        });
-
-      // ===== TYPE CODE =====
-      const typeCode = () =>
-        new Promise(resolve => {
-          if (!fullCode) return resolve();
-          const lines = fullCode.split("\n");
-          let currentLine = 0;
-          codeIntervalRef.current = setInterval(() => {
-            if (isStoppedRef.current) {
-              clearInterval(codeIntervalRef.current);
-              codeIntervalRef.current = null;
-              resolve();
-              return;
-            }
-
-            currentLine++;
-            updateLastMessage({
-              code: lines.slice(0, currentLine).join("\n"),
-            });
-
-            if (currentLine >= lines.length) {
-              clearInterval(codeIntervalRef.current);
-              codeIntervalRef.current = null;
-              resolve();
-            }
-          }, 60);
-        });
-
-      await typeSummary();
-      await typeCode();
-
-      // Show charts & execution output only if we didn't stop
-      if (!isStoppedRef.current) {
-        updateLastMessage({
-          chartSpec: data.chart_spec,
-          result: data.result,
-        });
-      }
-
-    } catch (error) {
-      if (axios.isCancel(error)) {
-        console.log("Request stopped by user abort");
-        setMessages(prev => [
-          ...prev,
-          {
-            role: "assistant",
-            content: "*[Session query stopped]*"
-          }
-        ]);
-      } else {
-        console.error(error);
-        setMessages(prev => [
-          ...prev,
-          {
-            role: "assistant",
-            content: "Error: Failed to get response from server.",
-          },
-        ]);
-      }
-    } finally {
-      setIsLoading(false);
-      setIsTyping(false);
-      abortControllerRef.current = null;
+    } else {
+      console.error(error);
+      setMessages(prev => [
+        ...prev,
+        { role: "assistant", content: "Error: Failed to get response from server." },
+      ]);
     }
-  };
+  } finally {
+    setIsLoading(false);
+    setIsTyping(false);
+    abortControllerRef.current = null;
+  }};
 
   const handleClearChat = () => {
     if (window.confirm("Are you sure you want to clear this conversation?")) {
@@ -317,15 +269,15 @@ const App = () => {
             <svg viewBox="0 0 100 100" width="100%" height="100%">
               <defs>
                 <linearGradient id="shieldGradApp" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#818cf8" />
-                  <stop offset="100%" stop-color="#4f46e5" />
+                  <stop offset="0%" stopColor="#818cf8" />
+                  <stop offset="100%" stopColor="#4f46e5" />
                 </linearGradient>
               </defs>
               <path 
                 d="M50 15 C65 15, 78 20, 80 32 C80 58, 68 76, 50 85 C32 76, 20 58, 20 32 C22 20, 35 15, 50 15 Z" 
                 fill="url(#shieldGradApp)" 
                 stroke="#ffffff" 
-                stroke-width="2" 
+                strokeWidth="2" 
               />
               <circle cx="50" cy="48" r="8" fill="#ffffff" />
             </svg>
@@ -351,20 +303,6 @@ const App = () => {
           >
             {theme === "light" ? <IoMoon /> : <IoSunny />}
           </button>
-        </div>
-
-        <div className="mode-selector">
-          <p className="section-title">Analysis Mode</p>
-          <select
-            className="mode-dropdown"
-            value={mode}
-            onChange={(e) => setMode(e.target.value)}
-          >
-            <option value="csv">CSV Analysis</option>
-            <option value="sql">SQL Query</option>
-            <option value="code">Generate Code</option>
-            <option value="general">General</option>
-          </select>
         </div>
 
         <div className="uploaded-section">
@@ -466,10 +404,7 @@ const App = () => {
         <ChatWindow 
           messages={messages} 
           isLoading={isLoading} 
-          onSelectSuggestion={(sugText, sugMode) => {
-            if (sugMode) setMode(sugMode);
-            handleSend(sugText, sugMode);
-          }}
+          onSelectSuggestion={(sugText) => { handleSend(sugText) }}
         />
 
         <div className="input-area">

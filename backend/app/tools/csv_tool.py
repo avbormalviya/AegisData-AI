@@ -1,5 +1,7 @@
-from typing import Optional
+import re
 import pandas as pd
+from typing import Annotated
+from langgraph.prebuilt import InjectedState
 from pandas.errors import EmptyDataError, ParserError
 from langchain_core.tools import tool
 from app.services.llm import llm
@@ -12,17 +14,17 @@ MAX_ROWS = settings.MAX_ROWS
 
 
 @tool
-def csv_query_tool(query: str, file_path: Optional[str] = None) -> str:
-    """
-    Query a CSV or Excel file using natural language.
+def csv_query_tool(query: str, state: Annotated[dict, InjectedState]) -> str:
+    """Use this tool to answer questions about an uploaded CSV or Excel file.
+    Use this when the user has uploaded a file and is asking a question that
+    requires reading, filtering, aggregating, or analyzing that file's data
+    (e.g. "what's the average price", "how many rows have X", "top 5 by Y").
 
     Args:
-        query: The natural language query to answer
-        file_path: Path to the CSV or Excel file
-
-    Returns:
-        The result of the query as a string
+        query: The user's natural language question about the file.
     """
+    file_path = state["file_path"]
+
     if file_path is None:
         return "Please upload a CSV or Excel file first."
 
@@ -77,90 +79,106 @@ def csv_query_tool(query: str, file_path: Optional[str] = None) -> str:
     code = extract_code(response.content)
 
     namespace = {"pd": pd, "df": df}
-    exec(code, namespace)
+
+    try:
+        exec(code, namespace)
+    except Exception as e:
+        return f"""
+        Generated code:
+
+        {code}
+
+        Execution error:
+        {str(e)}
+        """
 
     result = namespace.get("result", "No result variable found")
+
+    if isinstance(result, pd.DataFrame):
+        result = result.head(MAX_ROWS)
+
+    elif isinstance(result, pd.Series):
+        result = result.head(MAX_ROWS)
 
     return safe_str(result)
 
 
 def build_prompt(query: str, df_info: str) -> str:
     return f"""
-You are an expert Python and Pandas developer.
+    You are an expert Python and Pandas developer.
 
-A pandas DataFrame named `df` is ALREADY loaded and available.
+    A pandas DataFrame named `df` is ALREADY loaded and available.
 
-DATASET INFORMATION:
-{df_info}
+    DATASET INFORMATION:
+    {df_info}
 
-USER QUESTION:
-{query}
+    USER QUESTION:
+    {query}
 
-IMPORTANT:
+    IMPORTANT:
 
-NEVER generate visualization code.
+    NEVER generate visualization code.
 
-FORBIDDEN:
-- df.plot(...)
-- .plot(...)
-- matplotlib
-- seaborn
-- plotly
-- altair
-- bokeh
-- plt.plot()
-- plt.bar()
-- plt.show()
-- px.line()
-- px.bar()
+    FORBIDDEN:
+    - df.plot(...)
+    - .plot(...)
+    - matplotlib
+    - seaborn
+    - plotly
+    - altair
+    - bokeh
+    - plt.plot()
+    - plt.bar()
+    - plt.show()
+    - px.line()
+    - px.bar()
 
-If the user requests a chart:
-- Return the data needed for the chart.
-- Store that data in `result`.
-- Do NOT create the chart.
+    If the user requests a chart:
+    - Return the data needed for the chart.
+    - Store that data in `result`.
+    - Do NOT create the chart.
 
-Example:
+    Example:
 
-User: Plot sales by month
+    User: Plot sales by month
 
-Code:
+    Code:
 
-result = (
-    df.groupby("month")["sales"]
-    .sum()
-    .reset_index()
-    .to_dict("records")
-)
+    result = (
+        df.groupby("month")["sales"]
+        .sum()
+        .reset_index()
+        .to_dict("records")
+    )
 
-CRITICAL:
+    CRITICAL:
 
-Your response will be executed directly using:
+    Store the answer directly in `result`.
 
-exec(response)
+    Examples:
 
-If you return ANYTHING except valid Python code,
-the application will crash.
+    result = df["sales"].mean()
 
-Do not explain.
-Do not describe.
-Do not apologize.
-Do not provide alternatives.
+    result = (
+        df.groupby("month")["sales"]
+        .sum()
+        .reset_index()
+    )
 
-Return executable Python only.
-"""
+    Do NOT convert to dict.
+    Do NOT call to_dict().
+    Do NOT serialize anything.
+    """
 
 
 def extract_code(response: str) -> str:
-    """
-    Extract Python code from a response.
+    match = re.search(
+        r"```(?:python)?\n(.*?)```",
+        response,
+        re.DOTALL
+    )
 
-    Args:
-        response: The response from the LLM
+    if match:
+        return match.group(1).strip()
 
-    Returns:
-        The extracted Python code as a string
-    """
-    response = response.strip()
-    response = response.replace("```python", "")
-    response = response.replace("```", "")
     return response.strip()
