@@ -18,11 +18,13 @@ import {
 } from "react-icons/io5";
 
 const App = () => {
-  const [messages, setMessages] = useState([]);
+  // Load persisted state from localStorage
+  const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('chatMessages') || '[]'));
+  const [uploadedFiles, setUploadedFiles] = useState(() => JSON.parse(localStorage.getItem('uploadedFiles') || '[]'));
+  const [activeFilePath, setActiveFilePath] = useState(() => localStorage.getItem('activeFilePath') || null);
+  
   const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [activeFilePath, setActiveFilePath] = useState(null);
   const [input, setInput] = useState("");
   const [theme, setTheme] = useState(() => localStorage.getItem("aegis-theme") || "light");
   
@@ -37,6 +39,16 @@ const App = () => {
   const summaryIntervalRef = useRef(null);
   const codeIntervalRef = useRef(null);
   const isStoppedRef = useRef(false);
+
+  // Persist state updates
+  useEffect(() => {
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles));
+    localStorage.setItem('activeFilePath', activeFilePath || '');
+  }, [uploadedFiles, activeFilePath]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -134,6 +146,9 @@ const App = () => {
       abortControllerRef.current.signal
     );
 
+    console.log(data.messages);
+    
+
     setIsLoading(false);
     setIsTyping(true);
 
@@ -148,12 +163,33 @@ const App = () => {
       }
     }
 
-    // extract chart_tool result if present
+    // extract chart_tool result if present (search from the end to get the current turn's chart)
     let chartSpec = null;
-    for (const m of rawMessages) {
-      if (m.type === "ToolMessage" && m.name === "chart_tool") {
-        chartSpec = m.content;
+    for (let i = rawMessages.length - 1; i >= 0; i--) {
+      if (rawMessages[i].type === "ToolMessage" && rawMessages[i].name === "chart_tool") {
+        chartSpec = rawMessages[i].content;
         break;
+      }
+    }
+
+    // Extract all ToolMessages for the current turn (since the last HumanMessage)
+    const currentTurnTools = [];
+    let lastHumanIndex = -1;
+    for (let i = rawMessages.length - 1; i >= 0; i--) {
+      if (rawMessages[i].type === "HumanMessage") {
+        lastHumanIndex = i;
+        break;
+      }
+    }
+
+    if (lastHumanIndex !== -1) {
+      for (let i = lastHumanIndex + 1; i < rawMessages.length; i++) {
+        if (rawMessages[i].type === "ToolMessage") {
+          currentTurnTools.push({
+            name: rawMessages[i].name,
+            content: rawMessages[i].content
+          });
+        }
       }
     }
 
@@ -197,7 +233,7 @@ const App = () => {
     if (!isStoppedRef.current) {
       updateLastMessage({
         chartSpec,
-        trace: data.trace,
+        trace: currentTurnTools,
       });
     }
 
@@ -327,9 +363,31 @@ const App = () => {
                         setIsSidebarOpen(false); // Close sidebar on mobile select
                       }}
                     >
-                      <IoCloudUpload size={16} className="file-item-icon" />
-                      <span className="file-item-name" title={name}>{name}</span>
-                      {isActive && <span className="active-badge">Active</span>}
+                      <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <IoCloudUpload size={16} className="file-item-icon" />
+                        <span className="file-item-name" title={name}>{name}</span>
+                        {isActive && (
+                          <span
+                            className="active-badge"
+                            style={{
+                              flexShrink: 0
+                            }}
+                          >
+                            Active
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={e => {
+                          e.stopPropagation();
+                          setUploadedFiles(prev => prev.filter(p => p !== path));
+                          if (activeFilePath === path) setActiveFilePath(null);
+                        }}
+                        className="file-item-delete"
+                        title="Remove dataset"
+                      >
+                        <IoTrash size={14} />
+                      </button>
                     </div>
                   );
                 })}
@@ -404,6 +462,7 @@ const App = () => {
         <ChatWindow 
           messages={messages} 
           isLoading={isLoading} 
+          theme={theme}
           onSelectSuggestion={(sugText) => { handleSend(sugText) }}
         />
 

@@ -37,7 +37,7 @@ def chart_tool(query: str, data: str) -> str:
         structured_llm = llm.with_structured_output(ChartSpec)
         result = structured_llm.invoke(prompt)
 
-        return result.model_dump()
+        return json.dumps(result.model_dump())
 
     except Exception:
         response = llm.invoke(prompt)
