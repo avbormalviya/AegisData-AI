@@ -1,7 +1,6 @@
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts"
 
 export const ChartRenderer = ({ chartSpec }) => {
-
     if (!chartSpec) return null
     const spec = typeof chartSpec === 'string' ? JSON.parse(chartSpec) : chartSpec
     

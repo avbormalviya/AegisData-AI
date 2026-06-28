@@ -3,7 +3,7 @@ import { ThinkingBubble } from "./ThinkingBubble";
 import { useRef, useEffect } from "react";
 import { IoStatsChart, IoCodeSlash, IoList, IoHelpCircle, IoSparkles } from "react-icons/io5";
 
-export const ChatWindow = ({ messages, isLoading, onSelectSuggestion }) => {
+export const ChatWindow = ({ messages, isLoading, onSelectSuggestion, theme }) => {
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -97,7 +97,7 @@ export const ChatWindow = ({ messages, isLoading, onSelectSuggestion }) => {
         </div>
       ) : (
         messages.map((message, idx) => (
-          <MessageBubble key={idx} message={message} />
+          <MessageBubble key={idx} message={message} theme={theme} />
         ))
       )}
 
