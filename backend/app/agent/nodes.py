@@ -29,10 +29,7 @@ FORMATTING RULES:
 - If you called chart_tool and want to show that chart in your response,
   insert the exact text [CHART_HERE] at the point where the chart should
   appear, with explanation before and after it.
-
-- If a tool (like code_tool) returns code, include that exact code in your
-  final response wrapped in a markdown code block with the correct language
-  tag. Do not just describe the code in words — show it."""
+- Include tools results in the response as a markdown code block with the correct language tag."""
 
 
 tools = [sql_query_tool, csv_query_tool, code_tool, chart_tool]

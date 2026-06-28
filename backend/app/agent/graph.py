@@ -1,5 +1,5 @@
 from langgraph.graph import StateGraph, END
-from langchain_core.messages import ToolMessage
+from langchain_core.messages import ToolMessage, HumanMessage
 from langgraph.prebuilt import tools_condition
 from app.agent.state import AgentState
 from app.agent.nodes import (
@@ -11,13 +11,21 @@ from app.agent.nodes import (
 def my_tools_condition(state):
     last = state["messages"][-1]
 
-    tool_messages = [
-        msg for msg in state["messages"]
+    # Find the index of the last HumanMessage in the current state
+    last_human_idx = 0
+    for i in range(len(state["messages"]) - 1, -1, -1):
+        if isinstance(state["messages"][i], HumanMessage):
+            last_human_idx = i
+            break
+
+    # Count only the tool messages generated in the current turn
+    current_turn_tool_messages = [
+        msg for msg in state["messages"][last_human_idx:]
         if isinstance(msg, ToolMessage)
     ]
 
-    if len(tool_messages) >= 3:
-        print("🛑 Tool limit reached")
+    if len(current_turn_tool_messages) >= 5:
+        print("🛑 Tool limit reached for this turn")
         return END
 
     if getattr(last, "tool_calls", None):
