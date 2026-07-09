@@ -3,6 +3,8 @@ import { FileUpload } from './components/FileUpload';
 import { ChatWindow } from './components/ChatWindow';
 import { sendMessage } from './services/api';
 import axios from 'axios';
+import logo_dark from "../public/logo-dark.svg";
+import logo_light from "../public/logo-light.svg"
 
 import { 
   IoCloudUpload, 
@@ -193,48 +195,11 @@ const App = () => {
       }
     }
 
-    const fullText = finalText;
-
-    setMessages(prev => [
-      ...prev,
-      { role: "assistant", content: "", chartSpec: null, trace: [] },
-    ]);
-
-    const updateLastMessage = (changes) => {
-      setMessages(prev => {
-        const updated = [...prev];
-        updated[updated.length - 1] = {
-          ...updated[updated.length - 1],
-          ...changes,
-        };
-        return updated;
-      });
-    };
-
-    await new Promise(resolve => {
-      if (!fullText) return resolve();
-      let i = 0;
-      summaryIntervalRef.current = setInterval(() => {
-        if (isStoppedRef.current) {
-          clearInterval(summaryIntervalRef.current);
-          summaryIntervalRef.current = null;
-          return resolve();
-        }
-        i++;
-        updateLastMessage({ content: fullText.slice(0, i) });
-        if (i >= fullText.length) {
-          clearInterval(summaryIntervalRef.current);
-          summaryIntervalRef.current = null;
-          resolve();
-        }
-      }, 10);
-    });
-
     if (!isStoppedRef.current) {
-      updateLastMessage({
-        chartSpec,
-        trace: currentTurnTools,
-      });
+      setMessages(prev => [
+        ...prev,
+        { role: "assistant", content: finalText, chartSpec, trace: currentTurnTools },
+      ]);
     }
 
   } catch (error) {
@@ -302,21 +267,7 @@ const App = () => {
       <div className={`left-panel ${isSidebarOpen ? 'open' : ''}`}>
         <div className="brand-header">
           <div className="brand-logo-container">
-            <svg viewBox="0 0 100 100" width="100%" height="100%">
-              <defs>
-                <linearGradient id="shieldGradApp" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#818cf8" />
-                  <stop offset="100%" stopColor="#4f46e5" />
-                </linearGradient>
-              </defs>
-              <path 
-                d="M50 15 C65 15, 78 20, 80 32 C80 58, 68 76, 50 85 C32 76, 20 58, 20 32 C22 20, 35 15, 50 15 Z" 
-                fill="url(#shieldGradApp)" 
-                stroke="#ffffff" 
-                strokeWidth="2" 
-              />
-              <circle cx="50" cy="48" r="8" fill="#ffffff" />
-            </svg>
+            <img src={theme === "light" ? logo_light : logo_dark} alt="AegisData AI" />
           </div>
           <div className="brand-title-wrap">
             <h1>AegisData AI</h1>

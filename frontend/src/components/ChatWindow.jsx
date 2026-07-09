@@ -2,7 +2,9 @@ import { MessageBubble } from "./MessageBubble";
 import { ThinkingBubble } from "./ThinkingBubble";
 import { useRef, useEffect } from "react";
 import { IoStatsChart, IoCodeSlash, IoList, IoHelpCircle, IoSparkles } from "react-icons/io5";
-
+import logo_dark from "../../public/logo-dark.svg";
+import logo_light from "../../public/logo-light.svg";
+ 
 export const ChatWindow = ({ messages, isLoading, onSelectSuggestion, theme }) => {
   const bottomRef = useRef(null);
 
@@ -38,24 +40,7 @@ export const ChatWindow = ({ messages, isLoading, onSelectSuggestion, theme }) =
       {messages.length === 0 ? (
         <div className="chat-empty-state">
           <div className="empty-logo-wrapper">
-            <svg viewBox="0 0 100 100" width="100%" height="100%">
-              <defs>
-                <linearGradient id="shieldG" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#818cf8" />
-                  <stop offset="100%" stopColor="#4f46e5" />
-                </linearGradient>
-              </defs>
-              <path 
-                d="M50 15 C65 15, 78 20, 80 32 C80 58, 68 76, 50 85 C32 76, 20 58, 20 32 C22 20, 35 15, 50 15 Z" 
-                fill="url(#shieldG)" 
-                stroke="#ffffff" 
-                strokeWidth="2" 
-              />
-              <circle cx="50" cy="48" r="8" fill="#ffffff" />
-              <line x1="50" y1="48" x2="36" y2="38" stroke="#ffffff" strokeWidth="2" />
-              <line x1="50" y1="48" x2="64" y2="38" stroke="#ffffff" strokeWidth="2" />
-              <line x1="50" y1="48" x2="50" y2="68" stroke="#ffffff" strokeWidth="2" />
-            </svg>
+            <img src={ theme === "light" ? logo_light : logo_dark } alt="AegisData AI" />
           </div>
           <h2 className="empty-title">AegisData AI</h2>
           <p className="empty-subtitle">
