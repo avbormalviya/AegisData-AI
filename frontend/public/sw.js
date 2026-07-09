@@ -2,11 +2,13 @@ const CACHE_NAME = "aegisdata-cache-v3";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
-  "/logo.svg",
+  "/logo-dark.svg",
   "/favicon.svg",
   "/manifest.json",
   "/icon-192.png",
-  "/icon-512.png"
+  "/icon-512.png",
+  "/icon-1024.png",
+  "/dashboard.png"
 ];
 
 // Install Service Worker and cache essential assets
