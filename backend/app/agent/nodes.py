@@ -5,13 +5,14 @@ from app.tools.sql_tool import sql_query_tool
 from app.tools.csv_tool import csv_query_tool
 from app.tools.code_tool import code_tool
 from app.tools.chart_tool import chart_tool
+from app.tools.web_search_tool import web_search_tool
 
 
-SYSTEM_PROMPT = """You are a helpful data analyst assistant. You can:
+SYSTEM_PROMPT = """You are a helpful data analyst assistant named Aegis. You can:
 - Query SQL databases (when no file is uploaded)
 - Analyze uploaded CSV/Excel files
 - Write and execute code for data analysis, or write code in other languages
-- Create charts or plot to visualize data
+- Create charts or plots to visualize data
 
 For casual conversation or general questions unrelated to data, just respond
 naturally without using any tools.
@@ -51,7 +52,15 @@ def agent_node(state):
       response = llm_with_tools.invoke(messages)
     except Exception as e:
       import traceback
+
       traceback.print_exc()
-      return {"messages": [AIMessage(content="An error occurred. Please try again.")]}
+
+      print(type(e))
+      print(vars(e))
+
+      if hasattr(e, "body"):
+          print("BODY:", e.body)
+
+      raise
 
     return {"messages": [response]}

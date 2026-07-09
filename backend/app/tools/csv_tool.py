@@ -23,39 +23,44 @@ def csv_query_tool(query: str, state: Annotated[dict, InjectedState]) -> str:
     Args:
         query: The user's natural language question about the file.
     """
-    file_path = state["file_path"]
+    file_path = state.get("file_path")
 
     if file_path is None:
         return "Please upload a CSV or Excel file first."
 
-    if file_path.endswith(".csv"):
-        try:
+    try:
+        if file_path.lower().endswith(".csv"):
             try:
                 df = pd.read_csv(
                     file_path,
                     encoding="utf-8",
-                sep=None,
-                engine="python",
-                on_bad_lines="skip"
-            )
-
+                    sep=None,
+                    engine="python",
+                    on_bad_lines="skip",
+                )
             except UnicodeDecodeError:
                 df = pd.read_csv(
                     file_path,
                     encoding="latin-1",
                     sep=None,
                     engine="python",
-                    on_bad_lines="skip"
+                    on_bad_lines="skip",
                 )
 
-        except EmptyDataError:
-            return "The uploaded CSV file is empty."
+        elif file_path.lower().endswith((".xlsx", ".xls")):
+            df = pd.read_excel(file_path)
 
-        except ParserError:
-            return "The uploaded CSV file is malformed."
+        else:
+            return "Unsupported file format. Please upload a CSV or Excel file."
 
-        except Exception as e:
-            return f"Failed to read CSV file: {str(e)}"
+    except EmptyDataError:
+        return "The uploaded file is empty."
+
+    except ParserError:
+        return "The uploaded CSV file is malformed."
+
+    except Exception as e:
+        return f"Failed to read file: {e}"
 
     # normalize columns
     df.columns = (
