@@ -16,9 +16,9 @@
       "purpose": "any maskable"
     },
     {
-      "src": "/android-chrome-192x192.png",
-      "sizes": "192x192",
+      "src": "/icon-1024.png",
       "type": "image/png",
+      "sizes": "1024x1024",
       "purpose": "any maskable"
     }
   ],
