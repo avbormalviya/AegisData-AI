@@ -1,6 +1,6 @@
 {
   "short_name": "AegisData AI",
-  "name": "AegisData AI - Agentic Data Analyst",
+  "name": "AegisData",
   "description": "An autonomous AI data analyst that runs queries, executes Python, and generates charts and insights from your CSV datasets.",
   "icons": [
     {
@@ -14,12 +14,32 @@
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/dashboard.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
     }
   ],
   "start_url": "/",
   "scope": "/",
-  "background_color": "#0f172a",
-  "theme_color": "#6366f1",
+  "background_color": "#0F172A",
+  "theme_color": "#4F46E5",
   "display": "standalone",
   "orientation": "portrait"
 }
