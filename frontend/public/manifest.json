@@ -1,7 +1,7 @@
 {
-  "short_name": "AegisData AI",
+  "short_name": "AegisData",
   "name": "AegisData",
-  "description": "An autonomous AI data analyst that runs queries, executes Python, and generates charts and insights from your CSV datasets.",
+  "description": "An autonomous AI data analyst that analyzes CSV and Excel files, runs SQL, executes Python, and generates charts and insights.",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -40,6 +40,9 @@
   "scope": "/",
   "background_color": "#0F172A",
   "theme_color": "#4F46E5",
-  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
   "orientation": "portrait"
 }
