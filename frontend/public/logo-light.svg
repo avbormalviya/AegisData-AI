@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bgLogo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f7f7f7ff"/>
+    </linearGradient>
+    <linearGradient id="topFaceLogo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffbe76"/>
+      <stop offset="100%" stop-color="#ff9f43"/>
+    </linearGradient>
+    <linearGradient id="rightFaceLogo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff9f43"/>
+      <stop offset="100%" stop-color="#ee5253"/>
+    </linearGradient>
+    <linearGradient id="leftFaceLogo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d63031"/>
+      <stop offset="100%" stop-color="#a52c2c"/>
+    </linearGradient>
+    <filter id="cubeShadowLogo" x="-15%" y="-15%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#ee5253" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="100" height="100" rx="22" ry="22" fill="url(#bgLogo)"/>
+  <g filter="url(#cubeShadowLogo)">
+    <polygon points="50,16 82,34 50,52 18,34" fill="url(#topFaceLogo)"/>
+    <polygon points="82,34 82,70 50,88 50,52" fill="url(#rightFaceLogo)"/>
+    <polygon points="18,34 50,52 50,88 18,70" fill="url(#leftFaceLogo)"/>
+  </g>
+  <polyline points="50,16 82,34 50,52 18,34 50,16" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.8"/>
+  <line x1="50" y1="52" x2="50" y2="88" stroke="rgba(255,255,255,0.12)" stroke-width="0.8"/>
+  <line x1="82" y1="34" x2="82" y2="70" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+  <line x1="18" y1="34" x2="18" y2="70" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+</svg>
