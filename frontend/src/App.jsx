@@ -16,7 +16,10 @@ import {
   IoClose, 
   IoTrash, 
   IoDownload, 
-  IoDocumentText 
+  IoDocumentText,
+  IoPhonePortrait,
+  IoShareSocial,
+  IoAddCircle
 } from "react-icons/io5";
 
 const App = () => {
@@ -36,11 +39,56 @@ const App = () => {
   // Local file schema metadata
   const [fileSchemas, setFileSchemas] = useState({});
 
+  // PWA Install prompt states
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
+  const [showPwaModal, setShowPwaModal] = useState(false);
+
   // Stop button animation & network abort refs
   const abortControllerRef = useRef(null);
   const summaryIntervalRef = useRef(null);
   const codeIntervalRef = useRef(null);
   const isStoppedRef = useRef(false);
+
+  // Detect PWA mode and capture install prompt event
+  useEffect(() => {
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      setIsAppInstalled(true);
+    }
+
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    const handleAppInstalled = () => {
+      setIsAppInstalled(true);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallPWA = async () => {
+    const isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    if (isIOS || !deferredPrompt) {
+      setShowPwaModal(true);
+      return;
+    }
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setIsAppInstalled(true);
+    }
+    setDeferredPrompt(null);
+  };
 
   // Persist state updates
   useEffect(() => {
@@ -292,6 +340,13 @@ const App = () => {
           </button>
         </div>
 
+        {!isAppInstalled && (
+          <button className="pwa-sidebar-btn" onClick={handleInstallPWA}>
+            <IoPhonePortrait size={16} />
+            <span>Install App on Mobile</span>
+          </button>
+        )}
+
         <div className="uploaded-section">
           <h2 className="section-title">
             <IoDocumentText size={14} style={{ marginRight: "4px" }} />
@@ -395,6 +450,12 @@ const App = () => {
           </div>
 
           <div className="chat-header-actions">
+            {!isAppInstalled && (
+              <button className="pwa-install-btn" onClick={handleInstallPWA} title="Install App to Home Screen">
+                <IoPhonePortrait size={14} />
+                <span>Install App</span>
+              </button>
+            )}
             {messages.length > 0 && (
               <>
                 <button className="header-action-btn" onClick={handleExportChat} title="Export chat session">
@@ -445,6 +506,50 @@ const App = () => {
           )}
         </div>
       </div>
+
+      {/* PWA Mobile Installation Guide Modal */}
+      {showPwaModal && (
+        <div className="pwa-modal-overlay" onClick={() => setShowPwaModal(false)}>
+          <div className="pwa-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="pwa-modal-header">
+              <h3>
+                <IoPhonePortrait style={{ color: "var(--accent)" }} />
+                Install AegisData AI App
+              </h3>
+              <button className="pwa-modal-close" onClick={() => setShowPwaModal(false)}>
+                <IoClose size={20} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)" }}>
+              To install this app on your phone's home screen, follow these browser steps:
+            </p>
+
+            <div className="pwa-modal-steps">
+              <div className="pwa-step-item">
+                <div className="pwa-step-num">iOS</div>
+                <div className="pwa-step-text">
+                  <strong>iPhone / Safari:</strong> Tap the Share button (<IoShareSocial style={{ verticalAlign: "middle" }} />), scroll down and select <strong>"Add to Home Screen"</strong> (<IoAddCircle style={{ verticalAlign: "middle" }} />).
+                </div>
+              </div>
+
+              <div className="pwa-step-item">
+                <div className="pwa-step-num">AND</div>
+                <div className="pwa-step-text">
+                  <strong>Android / Chrome:</strong> Tap the browser menu (⋮) at top right, and select <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.
+                </div>
+              </div>
+
+              <div className="pwa-step-item">
+                <div className="pwa-step-num">SSL</div>
+                <div className="pwa-step-text">
+                  <strong>HTTPS Requirement:</strong> Mobile PWA installation requires your site to be served over <strong>HTTPS</strong> (or deployed on Vercel/Netlify). Local HTTP IP addresses (e.g. http://192.168.x.x) are blocked by mobile security.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
