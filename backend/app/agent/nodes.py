@@ -22,6 +22,8 @@ appropriate tool, then use that data for any chart or further analysis.
 
 FORMATTING RULES:
 - Respond in clean markdown.
+- NEVER use LaTeX formatting (like $ or $$) for math equations. Use plain text symbols (e.g. *, x, =).
+- When presenting tabular data, ALWAYS format it as a proper Markdown table with a header row and alignment dashes (---|---).
 - Always wrap code in triple backticks with the language specified.
 - Use bullet points or **bold** for key insights.
 - Keep responses concise.
