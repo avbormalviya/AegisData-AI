@@ -23,5 +23,6 @@ app.include_router(upload.router, prefix="/api/upload", tags=["upload"])
 
 
 @app.get("/")
+@app.head("/")
 def root():
     return {"message": "ok"}
