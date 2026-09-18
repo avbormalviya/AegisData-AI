@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     # LLM
     GROQ_API_KEY: str
     OPENROUTE_API_KEY: str
-    MAIN_AGENT_NAME: str = "llama-3.1-70b-versatile"
+    MAIN_AGENT_NAME: str = "llama3-70b-8192"
     # MAIN_AGENT_NAME: str = "llama-3.1-8b-instant"
     TOOL_MODEL_NAME: str = "openai/gpt-oss-120b"
     CLASSIFIER_AGENT_NAME: str = "llama-3.1-8b-instant"
